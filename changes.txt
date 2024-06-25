@@ -1,0 +1,22 @@
+1) JWT Token Verification Logic Update
+Context: In the verify_access_token function, we encountered a need to align the data type of the id extracted from the JWT payload with the expectation of our Pydantic schema, specifically for the TokenData model.
+
+Change Location: oauth2.py within the verify_access_token function.
+
+Code Change:
+
+Original Line: id: str = payload.get("user_id")
+Updated Line: Removed the initial type hint and applied a conversion, resulting in id = str(payload.get("user_id")).
+Updated line 2 by casting the type id=str(id)
+if id is None:
+			raise credentials_exception
+		id=str(id)
+		token_data = schemas.TokenData(id=id)
+Description of Change:
+This modification ensures that the id from the JWT payload, irrespective of its original data type, is explicitly converted to a string. This adjustment is crucial for ensuring that the TokenData Pydantic model receives the id in the expected string format, thus avoiding type mismatch issues.
+
+Implication:
+The change harmonizes the data type across the boundary between JWT token handling and Pydantic model validation. It specifically addresses the potential issue of a Pydantic model validation error when the id field does not match the expected string type.
+
+Recommendation:
+Going forward, it's essential to be mindful of the data types expected by Pydantic models versus those in the JWT payload. This awareness will help prevent similar type mismatch issues and guide future adjustments in data handling strategies.
